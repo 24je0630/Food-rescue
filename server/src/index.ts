@@ -32,9 +32,12 @@ app.get('/api/health', (req, res) => {
     res.status(200).json({ status: 'ok', message: 'Food Rescue API is running' });
 });
 
+import ngoRoutes from './routes/ngoRoutes';
+
 // Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/donations', donationRoutes);
+app.use('/api/ngo', ngoRoutes);
 
 // Start server
 app.listen(port, () => {
