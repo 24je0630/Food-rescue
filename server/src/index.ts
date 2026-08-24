@@ -24,10 +24,15 @@ const limiter = rateLimit({
 });
 app.use('/api/', limiter);
 
+import authRoutes from './routes/authRoutes';
+
 // Basic route
 app.get('/api/health', (req, res) => {
     res.status(200).json({ status: 'ok', message: 'Food Rescue API is running' });
 });
+
+// Routes
+app.use('/api/auth', authRoutes);
 
 // Start server
 app.listen(port, () => {
