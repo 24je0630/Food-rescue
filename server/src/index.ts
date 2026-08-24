@@ -25,6 +25,7 @@ const limiter = rateLimit({
 app.use('/api/', limiter);
 
 import authRoutes from './routes/authRoutes';
+import donationRoutes from './routes/donationRoutes';
 
 // Basic route
 app.get('/api/health', (req, res) => {
@@ -33,6 +34,7 @@ app.get('/api/health', (req, res) => {
 
 // Routes
 app.use('/api/auth', authRoutes);
+app.use('/api/donations', donationRoutes);
 
 // Start server
 app.listen(port, () => {
