@@ -1,13 +1,138 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Get a free hosted Postgres database in seconds: `npx create-db`
-
 generator client {
-  provider = "prisma-client"
-  output   = "../generated/prisma"
+  provider = "prisma-client-js"
 }
 
 datasource db {
   provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  DONOR
+  NGO
+  VOLUNTEER
+  ADMIN
+}
+
+enum DonationStatus {
+  AVAILABLE
+  REQUESTED
+  ASSIGNED
+  PICKED_UP
+  DELIVERED
+  CANCELLED
+  EXPIRED
+}
+
+model User {
+  id        String   @id @default(uuid())
+  email     String   @unique
+  password  String
+  role      Role
+  name      String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  donorProfile     DonorProfile?
+  ngoProfile       NGOProfile?
+  volunteerProfile VolunteerProfile?
+
+  donations        Donation[]
+  requests         DonationRequest[]
+  pickupTasks      PickupTask[]
+  notifications    Notification[]
+}
+
+model DonorProfile {
+  id           String @id @default(uuid())
+  userId       String @unique
+  user         User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  organization String
+  address      String
+  latitude     Float
+  longitude    Float
+}
+
+model NGOProfile {
+  id              String @id @default(uuid())
+  userId          String @unique
+  user            User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  organization    String
+  address         String
+  latitude        Float
+  longitude       Float
+  operatingRadius Float
+}
+
+model VolunteerProfile {
+  id        String @id @default(uuid())
+  userId    String @unique
+  user      User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  latitude  Float
+  longitude Float
+}
+
+model Donation {
+  id              String         @id @default(uuid())
+  donorId         String
+  donor           User           @relation(fields: [donorId], references: [id])
+  foodName        String
+  description     String?
+  category        String
+  quantity        Float
+  quantityUnit    String
+  estimatedMeals  Int
+  preparationTime DateTime
+  availableFrom   DateTime
+  expiryTime      DateTime
+  isVegetarian    Boolean        @default(false)
+  allergens       String?
+  imageUrl        String?
+  pickupAddress   String
+  latitude        Float
+  longitude       Float
+  status          DonationStatus @default(AVAILABLE)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  requests DonationRequest[]
+  task     PickupTask?
+}
+
+model DonationRequest {
+  id         String   @id @default(uuid())
+  donationId String
+  donation   Donation @relation(fields: [donationId], references: [id])
+  ngoId      String
+  ngo        User     @relation(fields: [ngoId], references: [id])
+  status     String   @default("PENDING") // PENDING, ACCEPTED, REJECTED
+  message    String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model PickupTask {
+  id          String   @id @default(uuid())
+  donationId  String   @unique
+  donation    Donation @relation(fields: [donationId], references: [id])
+  volunteerId String
+  volunteer   User     @relation(fields: [volunteerId], references: [id])
+  status      String   @default("ASSIGNED") // ASSIGNED, PICKED_UP, DELIVERED
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Notification {
+  id        String   @id @default(uuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  message   String
+  type      String
+  isRead    Boolean  @default(false)
+  link      String?
+
+  createdAt DateTime @default(now())
 }
