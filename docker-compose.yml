@@ -12,5 +12,23 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data
 
+  server:
+    build: ./server
+    ports:
+      - "5000:5000"
+    environment:
+      - DATABASE_URL=postgresql://user:password@postgres:5432/food_rescue?schema=public
+      - JWT_SECRET=supersecret
+      - PORT=5000
+    depends_on:
+      - postgres
+
+  client:
+    build: ./client
+    ports:
+      - "80:80"
+    depends_on:
+      - server
+
 volumes:
   postgres_data:
