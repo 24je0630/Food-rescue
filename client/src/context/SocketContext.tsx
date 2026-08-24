@@ -4,12 +4,14 @@ import { useAuth } from './AuthContext';
 
 interface SocketContextType {
   socket: Socket | null;
+  notifications: any[];
 }
 
 const SocketContext = createContext<SocketContextType | undefined>(undefined);
 
 export const SocketProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [socket, setSocket] = useState<Socket | null>(null);
+  const [notifications, setNotifications] = useState<any[]>([]);
   const { user, isAuthenticated } = useAuth();
 
   useEffect(() => {
@@ -21,6 +23,12 @@ export const SocketProvider: React.FC<{ children: React.ReactNode }> = ({ childr
         newSocket.emit('join', user.id);
       });
 
+      newSocket.on('notification', (notif) => {
+        setNotifications((prev) => [notif, ...prev]);
+        // Ideally we would show a toast here
+        alert(`New notification: ${notif.message}`);
+      });
+
       return () => {
         newSocket.close();
       };
@@ -28,7 +36,7 @@ export const SocketProvider: React.FC<{ children: React.ReactNode }> = ({ childr
   }, [isAuthenticated, user]);
 
   return (
-    <SocketContext.Provider value={{ socket }}>
+    <SocketContext.Provider value={{ socket, notifications }}>
       {children}
     </SocketContext.Provider>
   );

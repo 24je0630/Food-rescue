@@ -1,6 +1,7 @@
 import { Request, Response } from 'express';
 import prisma from '../utils/db';
 import { DonationStatus } from '@prisma/client';
+import { sendNotification } from '../services/notificationService';
 
 const validTransitions: Record<DonationStatus, DonationStatus[]> = {
   AVAILABLE: ['REQUESTED', 'CANCELLED', 'EXPIRED'],
@@ -55,7 +56,26 @@ export const updateDonationStatus = async (req: Request, res: Response) => {
     const updated = await prisma.donation.update({
       where: { id: id as string },
       data: { status: status as DonationStatus },
+      include: {
+        task: true,
+        requests: true
+      }
     });
+
+    if (status === 'PICKED_UP' || status === 'DELIVERED') {
+      await sendNotification(
+        updated.donorId,
+        `Your donation ${updated.foodName} has been ${status.toLowerCase()}`,
+        status
+      );
+      if (updated.requests.length > 0) {
+        await sendNotification(
+          updated.requests[0].ngoId,
+          `The donation ${updated.foodName} has been ${status.toLowerCase()}`,
+          status
+        );
+      }
+    }
 
     res.json(updated);
   } catch (error) {

@@ -1,5 +1,6 @@
 import { Request, Response } from 'express';
 import prisma from '../utils/db';
+import { sendNotification } from '../services/notificationService';
 
 export const getAvailableTasks = async (req: Request, res: Response) => {
   try {
@@ -40,6 +41,12 @@ export const acceptTask = async (req: Request, res: Response) => {
         status: 'ASSIGNED',
       },
     });
+
+    await sendNotification(
+      donation.donorId,
+      `A volunteer has accepted the pickup task for: ${donation.foodName}`,
+      'VOLUNTEER_ASSIGNED'
+    );
 
     res.status(201).json(task);
   } catch (error) {

@@ -1,6 +1,7 @@
 import { Request, Response } from 'express';
 import prisma from '../utils/db';
 import { z } from 'zod';
+import { sendNotification } from '../services/notificationService';
 
 const requestDonationSchema = z.object({
   message: z.string().optional(),
@@ -36,6 +37,13 @@ export const requestDonation = async (req: Request, res: Response) => {
       where: { id: donation.id },
       data: { status: 'REQUESTED' },
     });
+
+    // Notify donor
+    await sendNotification(
+      donation.donorId,
+      `An NGO has requested your donation: ${donation.foodName}`,
+      'REQUESTED'
+    );
 
     res.status(201).json(request);
   } catch (error) {
