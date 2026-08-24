@@ -33,11 +33,13 @@ app.get('/api/health', (req, res) => {
 });
 
 import ngoRoutes from './routes/ngoRoutes';
+import lifecycleRoutes from './routes/lifecycleRoutes';
 
 // Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/donations', donationRoutes);
 app.use('/api/ngo', ngoRoutes);
+app.use('/api/lifecycle', lifecycleRoutes);
 
 // Start server
 app.listen(port, () => {
