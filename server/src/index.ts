@@ -36,14 +36,33 @@ import ngoRoutes from './routes/ngoRoutes';
 import lifecycleRoutes from './routes/lifecycleRoutes';
 import volunteerRoutes from './routes/volunteerRoutes';
 
+import { createServer } from 'http';
+import { Server } from 'socket.io';
+import notificationRoutes from './routes/notificationRoutes';
+
 // Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/donations', donationRoutes);
 app.use('/api/ngo', ngoRoutes);
 app.use('/api/lifecycle', lifecycleRoutes);
 app.use('/api/volunteer', volunteerRoutes);
+app.use('/api/notifications', notificationRoutes);
+
+const httpServer = createServer(app);
+export const io = new Server(httpServer, {
+  cors: {
+    origin: process.env.CLIENT_URL || 'http://localhost:5173',
+    methods: ['GET', 'POST']
+  }
+});
+
+io.on('connection', (socket) => {
+  socket.on('join', (userId: string) => {
+    socket.join(userId);
+  });
+});
 
 // Start server
-app.listen(port, () => {
+httpServer.listen(port, () => {
     console.log(`Server is running on port ${port}`);
 });
