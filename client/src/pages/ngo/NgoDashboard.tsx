@@ -1,11 +1,18 @@
 import { useEffect, useState } from 'react';
 import { getNearbyDonations, requestDonation } from '../../services/ngoApi';
+import DonationMap from '../../components/Map/DonationMap';
 
 const NgoDashboard = () => {
   const [donations, setDonations] = useState<any[]>([]);
+  const [center, setCenter] = useState<[number, number]>([51.505, -0.09]);
 
   useEffect(() => {
-    getNearbyDonations().then(setDonations).catch(console.error);
+    getNearbyDonations().then(data => {
+      setDonations(data);
+      if (data.length > 0) {
+        setCenter([data[0].latitude, data[0].longitude]);
+      }
+    }).catch(console.error);
   }, []);
 
   const handleRequest = async (id: string) => {
@@ -20,6 +27,9 @@ const NgoDashboard = () => {
   return (
     <div className="p-4">
       <h1 className="text-2xl font-bold mb-4">NGO Dashboard</h1>
+      <div className="mb-6">
+        <DonationMap donations={donations} center={center} />
+      </div>
       <h2 className="text-xl mb-2">Nearby Available Donations</h2>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {donations.map(donation => (
