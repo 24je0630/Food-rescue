@@ -39,6 +39,7 @@ import volunteerRoutes from './routes/volunteerRoutes';
 import { createServer } from 'http';
 import { Server } from 'socket.io';
 import notificationRoutes from './routes/notificationRoutes';
+import adminRoutes from './routes/adminRoutes';
 
 // Routes
 app.use('/api/auth', authRoutes);
@@ -47,6 +48,7 @@ app.use('/api/ngo', ngoRoutes);
 app.use('/api/lifecycle', lifecycleRoutes);
 app.use('/api/volunteer', volunteerRoutes);
 app.use('/api/notifications', notificationRoutes);
+app.use('/api/admin', adminRoutes);
 
 const httpServer = createServer(app);
 export const io = new Server(httpServer, {
