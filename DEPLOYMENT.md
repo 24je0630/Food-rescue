@@ -83,6 +83,7 @@ Never commit these values to version control.
 
 | Variable | Description | Example |
 | -------- | ----------- | ------- |
+| `NODE_VERSION` | Forces Render to use Node 20 | `20` |
 | `DATABASE_URL` | PostgreSQL connection string | `postgresql://user:password@host:5432/db?schema=public` |
 | `JWT_SECRET` | Cryptographically secure random string | `your-super-secret-key-32chars` |
 | `CLIENT_URL` | Exact production URL of your frontend | `https://food-rescue.vercel.app` |
